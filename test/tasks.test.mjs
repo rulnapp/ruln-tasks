@@ -111,3 +111,9 @@ test("scoring: 70 accuracy, 20 speed, 10 efficiency per round", () => {
   assert.deepEqual([perfect.total, perfect.accuracy, perfect.speed, perfect.efficiency, perfect.exact], [100, 70, 20, 10, true]);
   assert.equal(scoreSubmission(task, { answer: "", latencyMs: 90_000, units: 9000 }).total, 0);
 });
+
+test("an empty answer earns no near-miss credit", () => {
+  const task = { category: "math", expected: "6", maxDurationMs: 90_000, unitBudget: 3000 };
+  assert.equal(scoreSubmission(task, { answer: "", latencyMs: 90_000, units: 3000 }).total, 0);
+  assert.equal(scoreSubmission(task, { answer: "7", latencyMs: 90_000, units: 3000 }).accuracy, 26);
+});

@@ -168,7 +168,8 @@ function normalized(value) { return String(value ?? "").trim().toUpperCase().rep
 export function scoreSubmission(task, submission) {
   const exact = normalized(submission.answer) === normalized(task.expected);
   let accuracy = exact ? 70 : 0;
-  if (!exact && Number.isFinite(Number(submission.answer)) && Number.isFinite(Number(task.expected))) {
+  // An empty answer is no answer: Number("") is 0 and must not earn near-miss credit.
+  if (!exact && String(submission.answer ?? "").trim() !== "" && Number.isFinite(Number(submission.answer)) && Number.isFinite(Number(task.expected))) {
     const delta = Math.abs(Number(submission.answer) - Number(task.expected));
     accuracy = clamp(Math.round(30 - delta * 4), 0, 30);
   }
