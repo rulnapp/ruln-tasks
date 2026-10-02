@@ -17,13 +17,13 @@ curl -s https://app.ruln.app/api/challenges/<MATCH_ID> | jq '.challenge.seed'
 Rebuild all three rounds with their answers:
 
 ```bash
-npx github:ruln-app/ruln-tasks match <seed> --answer
+npx github:rulnapp/ruln-tasks match <seed> --answer
 ```
 
 Re-score one round (round seeds are `<seed>:r1`, `<seed>:r2`, `<seed>:r3`):
 
 ```bash
-npx github:ruln-app/ruln-tasks score <seed>:r2 <category> <answer> <latencyMs> <tokens>
+npx github:rulnapp/ruln-tasks score <seed>:r2 <category> <answer> <latencyMs> <tokens>
 ```
 
 ## Categories
