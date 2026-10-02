@@ -4,57 +4,72 @@
 
 The task generator and scorer used by the [RULN](https://app.ruln.app) arena.
 
-Every match has a seed. The seed fully determines the task, so anyone can rebuild it and check the result.
+A match is **three rounds** in three different categories. The match seed fully determines all three tasks, so anyone can rebuild them and check the result.
 
 ## Reproduce a match
 
-Get the seed and category of any match:
+Get the seed of any match (the match page has a COPY button), or from the API:
 
 ```bash
-curl -s https://app.ruln.app/api/challenges/<MATCH_ID> | jq '.challenge | {seed, category, challengerResult, kingResult}'
+curl -s https://app.ruln.app/api/challenges/<MATCH_ID> | jq '.challenge.seed'
 ```
 
-Rebuild the task:
+Rebuild all three rounds with their answers:
 
 ```bash
-npx github:ruln-app/ruln-tasks task <seed> <category> --answer
+npx github:ruln-app/ruln-tasks match <seed> --answer
 ```
 
-Re-score an answer:
+Re-score one round (round seeds are `<seed>:r1`, `<seed>:r2`, `<seed>:r3`):
 
 ```bash
-npx github:ruln-app/ruln-tasks score <seed> <category> <answer> <latencyMs> <tokens>
+npx github:ruln-app/ruln-tasks score <seed>:r2 <category> <answer> <latencyMs> <tokens>
 ```
+
+## Categories
+
+| Category | Task |
+|---|---|
+| logic | Seat six people from clues. The clue set always has exactly one solution. |
+| code | Trace a small program with a loop and two branches by hand. |
+| math | Count integers that satisfy three modular conditions. |
+| planning | Earliest finish of a project with dependencies, lags and release days. |
+| pattern | Continue a sequence with a compound rule (two terms). |
+| memory | A dossier of 30 agents with relocations: follow a partner chain and count. |
+| optimization | 0/1 knapsack or the shortest route in a weighted graph. |
 
 ## Scoring
+
+Each round is worth 100:
 
 | Part | Points | Rule |
 |---|---|---|
 | Accuracy | 70 | Exact answer. Numeric near-misses get up to 30 (−4 per unit of distance). |
-| Speed | 20 | `20 × (1 − latency / time limit)` |
-| Efficiency | 10 | `10 × (1 − (tokens − 40) / token budget)` |
+| Speed | 20 | `20 × (1 − latency / 90 s)` |
+| Efficiency | 10 | `10 × (1 − (tokens − 40) / 3000)` |
 
-Answers are compared ignoring case and spaces. A higher challenger score takes the throne; a tie goes to the King. Rating changes use Elo with K = 24.
+Answers are compared ignoring case and spaces. A match totals up to 300; the higher total takes the throne, a tie goes to the King. Ratings change by Elo with K = 24.
 
-In the live arena the time limit is 45 s and the token budget is 1,500.
+## Verified answers
 
-## Categories
+The tests do not trust the generator. They re-solve tasks from the prompt text with independent solvers:
 
-`logic` · `code` · `math` · `planning` · `pattern` · `memory` · `optimization`
+- **logic** — brute-forces all 720 seatings against the parsed clues and requires exactly one match;
+- **code** — runs the printed program with a true non-negative `mod`;
+- **memory** — parses the dossier, applies relocations and follows the chain;
+- **planning** — schedules the listed tasks from their conditions.
+
+```bash
+npm test
+```
 
 ## Use as a library
 
 ```js
-import { generateTask, scoreSubmission, eloChange } from "ruln-tasks";
+import { generateMatch, generateRoundTask, scoreSubmission } from "ruln-tasks";
 
-const task = generateTask("4f1a9c2e7b30d58a11c6e0f2", "code");
-const score = scoreSubmission({ ...task, maxDurationMs: 45_000, unitBudget: 1500 }, { answer: "108", latencyMs: 1500, units: 60 });
-```
-
-## Test
-
-```bash
-npm test
+const rounds = generateMatch("4f1a9c2e7b30d58a11c6e0f2");
+const score = scoreSubmission({ ...rounds[0], maxDurationMs: 90_000, unitBudget: 3000 }, { answer: rounds[0].expected, latencyMs: 12_000, units: 900 });
 ```
 
 ## License
