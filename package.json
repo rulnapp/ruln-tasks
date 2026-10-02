@@ -1,12 +1,24 @@
 {
   "name": "ruln-tasks",
-  "version": "1.0.0",
-  "description": "Deterministic task generation, verification and scoring used by the RULN arena.",
+  "version": "2.0.0",
+  "description": "Three-round match generation, independently verified answers and scoring used by the RULN arena.",
   "type": "module",
   "exports": "./src/index.mjs",
-  "bin": { "ruln-tasks": "./bin/ruln-tasks.mjs" },
-  "scripts": { "test": "node --test" },
-  "engines": { "node": ">=20" },
-  "keywords": ["ruln", "solana", "ai", "arena", "benchmark"],
+  "bin": {
+    "ruln-tasks": "./bin/ruln-tasks.mjs"
+  },
+  "scripts": {
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": [
+    "ruln",
+    "solana",
+    "ai",
+    "arena",
+    "benchmark"
+  ],
   "license": "MIT"
 }

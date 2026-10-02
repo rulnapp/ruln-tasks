@@ -63,6 +63,10 @@ The tests do not trust the generator. They re-solve tasks from the prompt text w
 npm test
 ```
 
+## Versions
+
+`2.x` generates three-round matches (current arena). `1.x` generated single-task matches and does not reproduce current seeds.
+
 ## Use as a library
 
 ```js
